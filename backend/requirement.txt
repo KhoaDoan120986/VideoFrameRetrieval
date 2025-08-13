@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+torch
+sentence-transformers
+open-clip-torch
+qdrant-client
+llama-index
+llama-index-vector-stores-qdrant
+llama-index-core
