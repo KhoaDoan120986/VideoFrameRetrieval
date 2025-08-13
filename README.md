@@ -60,7 +60,7 @@ The system uses **ReactJS** for the frontend interface and **FastAPI** as the ba
 - **AI Models**:  
   - Object Detection: [YOLOv12](https://docs.ultralytics.com/vi/models/yolo12/).  
   - Feature Extraction: [CLIP-L-14](https://huggingface.co/apple/DFN2B-CLIP-ViT-L-14)
-  - Image Captioning (including OCR text): (VinternVL)[https://huggingface.co/5CD-AI/Vintern-1B-v3_5]    
+  - Image Captioning (including OCR text): [VinternVL](https://huggingface.co/5CD-AI/Vintern-1B-v3_5)
   - Speech-to-Text: [Whisper](https://huggingface.co/openai/whisper-large-v3).
   - Text Embedding: [BGE](https://huggingface.co/AITeamVN/Vietnamese_Reranker)
   - Translator: [EnViT5](https://huggingface.co/VietAI/envit5-translation)
