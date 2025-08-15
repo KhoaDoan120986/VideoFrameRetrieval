@@ -138,6 +138,7 @@ html, body {
   justify-content: center;
   align-items: center;
   color: #999;
+  margin-bottom: 20px;
 }
 
 .result-box {

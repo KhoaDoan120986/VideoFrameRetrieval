@@ -30,6 +30,7 @@ function App() {
       });
       if (!response.ok) throw new Error("Failed to fetch");
       const data = await response.json();
+      console.log(data.results)
       return data.results;
     } catch (error) {
       console.error(error);
@@ -75,7 +76,7 @@ function App() {
         <div className="sidebar">
           <div className="logo">AI CHALLENGE 2025</div>
           <div className="team-info">
-            <h2> GROUP: ...</h2>
+            <h2> GROUP: Tralalero Tralala </h2>
             <ul>
               <li>Trần Nguyên Huân</li>
               <li>Trần Hải Phát</li>
