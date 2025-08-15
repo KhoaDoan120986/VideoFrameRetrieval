@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background-color: #121212;
@@ -19,9 +20,9 @@ html, body {
   background-color: #cbb3f9;
   padding: 16px 12px;
   font-size: 20px;
-  color: #1a1a1a; 
+  color: #1a1a1a;
   border-radius: 8px;
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
   user-select: none;
   cursor: default;
 }
@@ -43,7 +44,7 @@ html, body {
   background: linear-gradient(135deg, #ffffff, #f0f4f8);
   border-radius: 10px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   max-width: 300px;
 }
 
@@ -51,8 +52,10 @@ html, body {
   margin: 0 0 10px 0;
   font-size: 18px;
   font-weight: bold;
-  color: #1e3a8a; /* xanh đậm */
-  border-bottom: 2px solid #3b82f6; /* xanh sáng */
+  color: #1e3a8a;
+  /* xanh đậm */
+  border-bottom: 2px solid #3b82f6;
+  /* xanh sáng */
   padding-bottom: 4px;
 }
 
@@ -64,7 +67,8 @@ html, body {
 
 .team-info li {
   font-size: 15px;
-  color: #374151; /* xám đậm */
+  color: #374151;
+  /* xám đậm */
   padding: 4px 0;
   display: flex;
   align-items: center;
@@ -79,8 +83,8 @@ html, body {
 
 .settings-title {
   background-color: #cbb3f9;
-  border-radius: 8px;       
-  padding: 8px 16px;      
+  border-radius: 8px;
+  padding: 8px 16px;
   text-align: center;
   margin-bottom: 15px;
   border: 1px solid #444;
@@ -96,12 +100,13 @@ html, body {
 .topk-label {
   display: inline-flex;
   align-items: center;
-  justify-content: center;  /* căn giữa ngang */
-  gap: 8px;             
+  justify-content: center;
+  /* căn giữa ngang */
+  gap: 8px;
   padding: 6px 10px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.02); 
-  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   color: #e6e6e6;
   font-size: 18px;
   user-select: none;
@@ -109,11 +114,11 @@ html, body {
 }
 
 .topk-input {
-  width: 110px;            
+  width: 110px;
   padding: 6px 8px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: #171717; 
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #171717;
   color: #fff;
   font-size: 14px;
   text-align: center;
@@ -122,14 +127,16 @@ html, body {
 
 
 .main-content {
-  width: auto;
   flex: 1;
-  padding: 15px 5px; /* top-bottom:15px, left-right:15px */
+  padding: 15px 5px;
+  /* top-bottom:15px, left-right:15px */
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .empty-state {
-  margin-top: 5px;
-  height: 560px;
+  height: 600px;
+  width: 1120px;
   padding: 10px;
   box-sizing: border-box;
 
@@ -138,22 +145,23 @@ html, body {
   justify-content: center;
   align-items: center;
   color: #999;
-  margin-bottom: 20px;
 }
 
 .result-box {
+  width: 100%;
   margin-top: 5px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
-  height: 560px;   
-  overflow-y: auto;  
+  min-height: 560px;
   margin-bottom: 20px;
   padding: 10px;
   box-sizing: border-box;
 }
 
 .card {
+  width: 250px;
+  height: 250px;
   background-color: #222;
   border-radius: 10px;
   padding: 10px;
@@ -164,16 +172,16 @@ html, body {
 }
 
 .card img {
-  width: 260px;
-  height: 220px; 
-  object-fit: cover; 
+  width: 240px;
+  height: 220px;
+  object-fit: cover;
   border-radius: 8px;
 }
 
 .card-empty {
-  width: 260px;
-  height: 220px; 
-  background: transparent; 
+  width: 250px;
+  height: 250px;
+  background: transparent;
   border: none;
   box-shadow: none;
   pointer-events: none;
@@ -181,16 +189,16 @@ html, body {
 }
 
 .card p {
-  font-size: 12px;       
-  color: #ccc; 
-  margin: 9px 0 0 0;  
-  white-space: nowrap; 
+  font-size: 12px;
+  color: #ccc;
+  margin: 9px 0 0 0;
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; 
+  text-overflow: ellipsis;
 }
 
 .pagination {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -234,13 +242,14 @@ html, body {
 
 .search-row input {
   flex: 1;
+  margin-left: 10px;
   padding: 10px 14px;
   border: 1.5px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   background-color: #1f1f1f;
   color: white;
 }
@@ -254,10 +263,10 @@ html, body {
   background-color: #cbb3f9;
   color: black;
   border: none;
-  border-radius: 50%;       
-  width: 40px;             
+  border-radius: 50%;
+  width: 40px;
   height: 40px;
-  padding: 0;  
+  padding: 0;
   cursor: pointer;
   font-size: 18px;
 
@@ -267,8 +276,11 @@ html, body {
 }
 
 #search-btn:hover {
-  background-color: #b39ddb; /* màu tím đậm hơn */
-  box-shadow: 0 0 8px rgba(203, 179, 249, 0.7); /* thêm bóng nhẹ */
-  transform: scale(1.1); /* phóng to nhẹ */
+  background-color: #b39ddb;
+  /* màu tím đậm hơn */
+  box-shadow: 0 0 8px rgba(203, 179, 249, 0.7);
+  /* thêm bóng nhẹ */
+  transform: scale(1.1);
+  /* phóng to nhẹ */
   transition: all 0.3s ease;
 }
