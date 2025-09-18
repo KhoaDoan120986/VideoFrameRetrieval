@@ -48,8 +48,6 @@ clip_embedder = Embedding(clip_model, model_name="ViT-H-14-quickgelu", device=DE
                           preprocess=clip_preprocess, tokenizer=tokenizer, model_type="clip")
 ClipSearch = SearchEngine(qdrant_client=qdrant_client, collection_name="Image")
 
-tokens = "oQSwvyunbUcjJlpefGiYRuDAxTvvSGMfnT"
-os.environ["HF_TOKEN"] = "hf_" + tokens
 gg_model = SentenceTransformer("google/embeddinggemma-300m")
 caption_embedder = Embedding(gg_model,model_name="google/embeddinggemma-300m",
                              device=DEVICE, model_type="caption")
