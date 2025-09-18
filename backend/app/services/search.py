@@ -80,7 +80,7 @@ def retrieve_frame(query: str, topK: int, mode: str = "hybrid",
         return caption_nodes
 
     else: 
-        clip_query = Translator.translate(query)
+        clip_query = translator.translate(query)
         clip_vector_query = clip_embedder._get_query_embedding(clip_query)
         clip_nodes = ClipSearch.retrieve_with_vector(
             vector_query=clip_vector_query, 
