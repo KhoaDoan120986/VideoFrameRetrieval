@@ -1,26 +1,20 @@
-import os
-import io
-from collections import defaultdict
-from typing import List, Optional
-
-import torch
-import open_clip
-from PIL import Image
-from sentence_transformers import SentenceTransformer
-
-from app.config import DEVICE
-from app.clients.qdrant_clients import qdrant_client
+from typing import Optional
 from app.services.search_engine import SearchEngine
+from typing import List, Optional
+from app.config import DEVICE, CLIP_collection, BGE_collection, GTE_collection
+from .embeddings import CLIPEmbedding, CaptionEmbedding
 from .translator import Translator
-from .embeddings import Embedding
+from app.clients.qdrant_clients import QDRANT_CLIENT_H, QDRANT_CLIENT_K
+from collections import defaultdict
+import torch
 
 
 VIDEO_TO_FRAMES  = defaultdict(list)
 offset = None
 
 while True:
-    result, offset = qdrant_client.scroll(
-        collection_name="Image",
+    result, offset = QDRANT_CLIENT_H.scroll(
+        collection_name=CLIP_collection,
         scroll_filter=None,
         with_payload=True,
         limit=5000,
@@ -36,62 +30,59 @@ while True:
     if offset is None:
         break
 
+
 translator = Translator(device=DEVICE)
-clip_model, _, clip_preprocess = open_clip.create_model_and_transforms(
-    model_name="ViT-H-14-quickgelu",
-    pretrained="dfn5b",
-    device=DEVICE
-)
-tokenizer = open_clip.get_tokenizer("ViT-H-14-quickgelu")
-clip_model = clip_model.eval()
-clip_embedder = Embedding(clip_model, model_name="ViT-H-14-quickgelu", device=DEVICE,
-                          preprocess=clip_preprocess, tokenizer=tokenizer, model_type="clip")
-ClipSearch = SearchEngine(qdrant_client=qdrant_client, collection_name="Image")
+clip_embed = CLIPEmbedding(device=DEVICE)
 
-gg_model = SentenceTransformer("google/embeddinggemma-300m")
-caption_embedder = Embedding(gg_model,model_name="google/embeddinggemma-300m",
-                             device=DEVICE, model_type="caption")
-CaptionSearch = SearchEngine(qdrant_client=qdrant_client, collection_name="Caption")
+bge_embed = CaptionEmbedding(model_name="AITeamVN/Vietnamese_Embedding_v2", device=DEVICE)
+
+gte_embed = CaptionEmbedding(model_name="dangvantuan/vietnamese-document-embedding",
+                             device=DEVICE,
+                             trust_remote_code=True)
 
 
+ClipSearch = SearchEngine(qdrant_client=QDRANT_CLIENT_H,
+                          collection_name=CLIP_collection,
+                          device=DEVICE, model=clip_embed, translator=translator)
 
-def retrieve_frame(query: str, topK: int, mode: str = "hybrid",
+BGECaptionSearch = SearchEngine(qdrant_client=QDRANT_CLIENT_K,
+                                collection_name=BGE_collection['Caption'],
+                                device=DEVICE, model=bge_embed, translator=None)
+BGESubtitlesSearch = SearchEngine(qdrant_client=QDRANT_CLIENT_H,
+                                collection_name=BGE_collection['Subtitle'],
+                                device=DEVICE, model=bge_embed, translator=None)
+
+GTECaptionSearch = SearchEngine(qdrant_client=QDRANT_CLIENT_K,
+                                collection_name=GTE_collection['Caption'],
+                                device=DEVICE, model=gte_embed, translator=None)
+
+GTESubtitlesSearch = SearchEngine(qdrant_client=QDRANT_CLIENT_H,
+                                collection_name=BGE_collection['Subtitle'],
+                                device=DEVICE, model=gte_embed, translator=None)
+
+
+def retrieve_frame(query: str, topK: int, mode: str = "hybrid", caption_mode: str = "bge",
                    alpha: float = 0.5, frame_ids: Optional[List] = None):
     if mode == "clip":
-        clip_query = translator.translate(query)
-        clip_vector_query = clip_embedder._get_query_embedding(clip_query)
-        clip_nodes = ClipSearch.retrieve_with_vector(
-            vector_query=clip_vector_query, 
-            topK=topK,
-            frame_ids=frame_ids
-        )
+        clip_nodes = ClipSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
         return clip_nodes
     
     elif mode == "vintern":
-        caption_vector_query = caption_embedder._get_query_embedding(query)
-        caption_nodes = CaptionSearch.retrieve_with_vector(
-            vector_query=caption_vector_query, 
-            topK=topK,
-            frame_ids=frame_ids
-        )
+        if caption_mode == "bge":
+            caption_nodes = BGECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        else: 
+            caption_nodes = GTECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
         return caption_nodes
 
     else: 
-        clip_query = Translator.translate(query)
-        clip_vector_query = clip_embedder._get_query_embedding(clip_query)
-        clip_nodes = ClipSearch.retrieve_with_vector(
-            vector_query=clip_vector_query, 
-            topK=topK,
-            frame_ids=frame_ids
-        )
+        clip_nodes = ClipSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
 
-        caption_vector_query = caption_embedder._get_query_embedding(query)
-        caption_nodes = CaptionSearch.retrieve_with_vector(
-            vector_query=caption_vector_query, 
-            topK=topK,
-            frame_ids=frame_ids
-        )
+        if caption_mode == "bge":
+            caption_nodes = BGECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        else: 
+            caption_nodes = GTECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
 
+        
         combined_scores = defaultdict(float)
         weights= (alpha, 1 - alpha)
         for nodes, w in ((caption_nodes, weights[0]), (clip_nodes, weights[1])):
@@ -102,18 +93,45 @@ def retrieve_frame(query: str, topK: int, mode: str = "hybrid",
 
         return [{"id": video_id, "score": score} for video_id, score in top_results]
 
+def retrieve_have_subtitles(query: str, topK: int, mode: str = "hybrid", caption_mode: str = "bge",
+                   alpha: float = 0.5, frame_ids: Optional[List] = None):
+    if mode == "clip":
+        clip_nodes = ClipSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        return clip_nodes
+    
+    elif mode == "vintern":
+        if caption_mode == "bge":
+            caption_nodes = BGECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        else: 
+            caption_nodes = GTECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        return caption_nodes
 
+    else: 
+        clip_nodes = ClipSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+
+        if caption_mode == "bge":
+            caption_nodes = BGECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+            subtitles_nodes = BGESubtitlesSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+        else: 
+            caption_nodes = GTECaptionSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+            subtitles_nodes = GTESubtitlesSearch.retrieve(query=query, topK=topK, frame_ids=frame_ids)
+
+        
+        combined_scores = defaultdict(float)
+        weights= (0.4, 0.4, 0.2)
+        for nodes, w in ((caption_nodes, weights[0]), (clip_nodes, weights[1]), (subtitles_nodes, weights[2])):
+            for node in nodes:
+                combined_scores[node["id"]] += node["score"] * w
+
+        top_results = sorted(combined_scores.items(), key=lambda x: x[1], reverse=True)[:topK]
+
+        return [{"id": video_id, "score": score} for video_id, score in top_results]
+    
 def retrieve_from_image(contents: bytes, topK: int):
     """
     Image-based search using CLIP embeddings
     """
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
-    clip_vector_query = clip_embedder._get_image_embedding(image)
-    results = ClipSearch.retrieve_with_vector(
-        vector_query=clip_vector_query,
-        topK=topK,
-        frame_ids=None
-    )
+    results = ClipSearch.retrieve_from_image(contents=contents, topK=topK)
     return results
 
 def parse_image_name(image_name: str):
@@ -207,7 +225,7 @@ def temporal_search(events: List[str], topK: int = 100,
     if search_mode == "progressive":
         frame_ids = None
         for event in events:
-            results = retrieve_frame(query=event, topK=topK, mode=mode, 
+            results = retrieve_frame(query=event, topK=topK, mode=mode, caption_mode=caption_mode, 
                                      alpha=alpha, frame_ids=frame_ids)
             final_results.append(results)
             video_ids = {parse_image_name(item['id'])[0] for item in results}
@@ -215,7 +233,7 @@ def temporal_search(events: List[str], topK: int = 100,
             
     else: #consolidated
         for event in events:
-            results = retrieve_frame(query=event, topK=topK, mode=mode, 
+            results = retrieve_frame(query=event, topK=topK, mode=mode, caption_mode=caption_mode, 
                                      alpha=alpha, frame_ids=None)
             final_results.append(results)
 

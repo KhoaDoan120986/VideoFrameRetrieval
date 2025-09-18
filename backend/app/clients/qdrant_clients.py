@@ -10,9 +10,3 @@ QDRANT_CLIENT_K = QdrantClient(
     url="https://09a6d049-00c4-4b77-8e95-1dcc9ea5df34.eu-west-1-0.aws.cloud.qdrant.io:6333",
     api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.-ZPZib9FxehqbTuqxsk7QdVjBQd0LlQEq7dpjF1b4PI",
 ) # Catpion
-
-
-qdrant_client = QdrantClient(
-    url="https://f0339322-922b-41c0-b62e-a6c0a99a49b2.us-east-1-1.aws.cloud.qdrant.io:6333", 
-    api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.i_i_e2KsKahW11VwCilrC-VWhXVuDbtYeswYUQqOz2Q",
-)
