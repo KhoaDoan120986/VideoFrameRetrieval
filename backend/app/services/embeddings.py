@@ -29,7 +29,7 @@ class Embedding(BaseEmbedding):
                 emb = emb / emb.norm(dim=-1, keepdim=True)
             return emb[0].cpu().numpy().tolist()
 
-        elif self.model_type == "caption":
+        elif self._model_type == "caption":
             return self._model.encode(
                 text,
                 convert_to_numpy=True,
@@ -38,7 +38,7 @@ class Embedding(BaseEmbedding):
             ).tolist()
 
         else:
-            raise ValueError(f"Unsupported model_type={self.model_type}")
+            raise ValueError(f"Unsupported model_type={self._model_type}")
 
     def _get_query_embedding(self, query: str) -> List[float]:
         if self._model_name == "google/embeddinggemma-300m":
