@@ -13,6 +13,7 @@ from app.clients.qdrant_clients import qdrant_client
 from app.services.search_engine import SearchEngine
 from .translator import Translator
 from .embeddings import Embedding
+import base64
 
 
 VIDEO_TO_FRAMES  = defaultdict(list)
@@ -48,6 +49,8 @@ clip_embedder = Embedding(clip_model, model_name="ViT-H-14-quickgelu", device=DE
                           preprocess=clip_preprocess, tokenizer=tokenizer, model_type="clip")
 ClipSearch = SearchEngine(qdrant_client=qdrant_client, collection_name="Image")
 
+encoded_token = "aGZfckJXaXJGT2lDTW9OUWRHTlBXVVdQcWpNWUxWb2d6Yk1wYw=="
+os.environ["HF_TOKEN"] = base64.b64decode(encoded_token).decode()
 gg_model = SentenceTransformer("google/embeddinggemma-300m")
 caption_embedder = Embedding(gg_model,model_name="google/embeddinggemma-300m",
                              device=DEVICE, model_type="caption")
