@@ -4,7 +4,7 @@ import json, time
 from typing import List, Optional
 from app.config import DEVICE, CLIP_collection, BGE_collection, GTE_collection
 from app.services.search import retrieve_frame, retrieve_from_image, temporal_search, \
-    ClipSearch, CaptionSearch, VIDEO_TO_FRAMES
+    ClipSearch, CaptionSearch, VIDEO_TO_FRAMES, translator
 
 router = APIRouter()
 
@@ -104,7 +104,7 @@ async def health_check():
             "clip": ClipSearch is not None,
             "bge": CaptionSearch is not None,
             "gte": CaptionSearch is not None,
-            "translator": ClipSearch.translator is not None
+            "translator": translator is not None
         },
         "collections": {
             "clip": CLIP_collection,
