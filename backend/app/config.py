@@ -1,19 +1,26 @@
-from qdrant_client import QdrantClient
 import torch
+from fastapi.middleware.cors import CORSMiddleware
 
-QDRANT_URL = "https://09a6d049-00c4-4b77-8e95-1dcc9ea5df34.eu-west-1-0.aws.cloud.qdrant.io:6333"
-QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.-ZPZib9FxehqbTuqxsk7QdVjBQd0LlQEq7dpjF1b4PI"
-
+# Device
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"🚀 Using device: {DEVICE}")
 
-qdrant_client = QdrantClient(
-    url=QDRANT_URL,
-    api_key=QDRANT_API_KEY,
-)
-
+# CORS
 CORS_SETTINGS = {
     "allow_origins": ["*"],
     "allow_credentials": True,
     "allow_methods": ["*"],
     "allow_headers": ["*"],
+}
+
+# Collection names
+CLIP_collection = "Image"
+BGE_collection = {
+    'Caption': "BGE_Caption",
+    'Subtitle': "BGE_subtitles"
+}
+
+GTE_collection = {
+    'Caption': "GTE_Caption",
+    'Subtitle': "GTE_subtitles"
 }
